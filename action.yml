@@ -1,5 +1,8 @@
 name: 'Helm Publish Action'
 description: 'Github Action to simplify Helm Chart publish into a Registry'
+branding:
+  icon: package
+  color: yellow
 inputs:
   workingDirectory:
     description: 'Working directory'
