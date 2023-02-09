@@ -1,11 +1,11 @@
 name: 'Helm Publish Action'
 description: 'Github Action to simplify Helm Chart publish into a Registry'
 inputs:
-  working_directory:
+  workingDirectory:
     description: 'Working directory'
     default: '.'
     required: false
-  tailscale_key:
+  tailscaleKey:
     description: 'Tailscale AuthKey'
     default: ''
     required: false
@@ -29,9 +29,9 @@ runs:
 
     - name: Tailscale
       uses: tailscale/github-action@v1
-      if: ${{ github.event.inputs.tailscale_key !== '' }}
+      if: ${{ github.event.inputs.tailscaleKey !== '' }}
       with:
-        authkey: ${{ github.event.inputs.tailscale_key }}
+        authkey: ${{ github.event.inputs.tailscaleKey }}
 
     - name: Add repository
       shell: bash
@@ -40,18 +40,24 @@ runs:
 
     - name: Update dependencies
       shell: bash
-      working-directory: ${{ github.event.inputs.working_directory }}
+      working-directory: ${{ github.event.inputs.workingDirectory }}
+      env:
+        HELM_REPO_USERNAME: ${{ secrets.DOCKER_INTERNAL_USERNAME }}
+        HELM_REPO_PASSWORD: ${{ secrets.DOCKER_INTERNAL_PASSWORD }}
       run: |
         helm dependencies update
 
     - name: Lint
       shell: bash
-      working-directory: ${{ github.event.inputs.working_directory }}
+      working-directory: ${{ github.event.inputs.workingDirectory }}
       run: |
         helm lint
 
     - name: Publish
       shell: bash
-      working-directory: ${{ github.event.inputs.working_directory }}
+      working-directory: ${{ github.event.inputs.workingDirectory }}
+      env:
+        HELM_REPO_USERNAME: ${{ secrets.DOCKER_INTERNAL_USERNAME }}
+        HELM_REPO_PASSWORD: ${{ secrets.DOCKER_INTERNAL_PASSWORD }}
       run: |
         helm cm-push . charts
