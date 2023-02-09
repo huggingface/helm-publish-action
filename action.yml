@@ -1,0 +1,57 @@
+name: 'Helm Publish Action'
+description: 'Github Action to simplify Helm Chart publish into a Registry'
+inputs:
+  working_directory:
+    description: 'Working directory'
+    default: '.'
+    required: false
+  tailscale_key:
+    description: 'Tailscale AuthKey'
+    default: ''
+    required: false
+  repository:
+    description: 'URL of your repository'
+    required: true
+  username:
+    description: 'Username to use on your repository'
+    required: true
+  password:
+    description: 'Password to use on your repository'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Install Helm
+      shell: bash
+      run: |
+        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+        helm plugin install https://github.com/chartmuseum/helm-push
+
+    - name: Tailscale
+      uses: tailscale/github-action@v1
+      if: ${{ github.event.inputs.tailscale_key !== '' }}
+      with:
+        authkey: ${{ github.event.inputs.tailscale_key }}
+
+    - name: Add repository
+      shell: bash
+      run: |
+        helm repo add charts ${{ github.event.inputs.repository }}
+
+    - name: Update dependencies
+      shell: bash
+      working-directory: ${{ github.event.inputs.working_directory }}
+      run: |
+        helm dependencies update
+
+    - name: Lint
+      shell: bash
+      working-directory: ${{ github.event.inputs.working_directory }}
+      run: |
+        helm lint
+
+    - name: Publish
+      shell: bash
+      working-directory: ${{ github.event.inputs.working_directory }}
+      run: |
+        helm cm-push . charts
