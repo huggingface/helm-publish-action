@@ -18,6 +18,10 @@ inputs:
   password:
     description: 'Password to use on your repository'
     required: true
+  beforeHook:
+    description: 'Command to execute before publishing'
+    default: ''
+    required: false
 runs:
   using: "composite"
   steps:
@@ -37,6 +41,12 @@ runs:
       shell: bash
       run: |
         helm repo add charts ${{ github.event.inputs.repository }}
+
+    - name: Execute Before Hook
+      shell: bash
+      if: ${{ github.event.inputs.beforeHook !== '' }}
+      working-directory: ${{ github.event.inputs.workingDirectory }}
+      run: ${{ github.event.inputs.beforeHook }}
 
     - name: Update dependencies
       shell: bash
