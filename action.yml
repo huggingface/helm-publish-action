@@ -52,8 +52,8 @@ runs:
       shell: bash
       working-directory: ${{ github.event.inputs.workingDirectory }}
       env:
-        HELM_REPO_USERNAME: ${{ secrets.DOCKER_INTERNAL_USERNAME }}
-        HELM_REPO_PASSWORD: ${{ secrets.DOCKER_INTERNAL_PASSWORD }}
+        HELM_REPO_USERNAME: ${{ github.event.inputs.username }}
+        HELM_REPO_PASSWORD: ${{ github.event.inputs.password }}
       run: |
         helm dependencies update
 
@@ -67,7 +67,7 @@ runs:
       shell: bash
       working-directory: ${{ github.event.inputs.workingDirectory }}
       env:
-        HELM_REPO_USERNAME: ${{ secrets.DOCKER_INTERNAL_USERNAME }}
-        HELM_REPO_PASSWORD: ${{ secrets.DOCKER_INTERNAL_PASSWORD }}
+        HELM_REPO_USERNAME: ${{ github.event.inputs.username }}
+        HELM_REPO_PASSWORD: ${{ github.event.inputs.password }}
       run: |
         helm cm-push . charts
