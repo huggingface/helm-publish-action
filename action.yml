@@ -33,41 +33,41 @@ runs:
 
     - name: Tailscale
       uses: tailscale/github-action@v1
-      if: ${{ github.event.inputs.tailscaleKey != '' }}
+      if: ${{ inputs.tailscaleKey != '' }}
       with:
-        authkey: ${{ github.event.inputs.tailscaleKey }}
+        authkey: ${{ inputs.tailscaleKey }}
 
     - name: Add repository
       shell: bash
       run: |
-        helm repo add charts ${{ github.event.inputs.repository }}
+        helm repo add charts ${{ inputs.repository }}
 
     - name: Execute Before Hook
       shell: bash
-      if: ${{ github.event.inputs.beforeHook != '' }}
-      working-directory: ${{ github.event.inputs.workingDirectory }}
-      run: ${{ github.event.inputs.beforeHook }}
+      if: ${{ inputs.beforeHook != '' }}
+      working-directory: ${{ inputs.workingDirectory }}
+      run: ${{ inputs.beforeHook }}
 
     - name: Update dependencies
       shell: bash
-      working-directory: ${{ github.event.inputs.workingDirectory }}
+      working-directory: ${{ inputs.workingDirectory }}
       env:
-        HELM_REPO_USERNAME: ${{ github.event.inputs.username }}
-        HELM_REPO_PASSWORD: ${{ github.event.inputs.password }}
+        HELM_REPO_USERNAME: ${{ inputs.username }}
+        HELM_REPO_PASSWORD: ${{ inputs.password }}
       run: |
         helm dependencies update
 
     - name: Lint
       shell: bash
-      working-directory: ${{ github.event.inputs.workingDirectory }}
+      working-directory: ${{ inputs.workingDirectory }}
       run: |
         helm lint
 
     - name: Publish
       shell: bash
-      working-directory: ${{ github.event.inputs.workingDirectory }}
+      working-directory: ${{ inputs.workingDirectory }}
       env:
-        HELM_REPO_USERNAME: ${{ github.event.inputs.username }}
-        HELM_REPO_PASSWORD: ${{ github.event.inputs.password }}
+        HELM_REPO_USERNAME: ${{ inputs.username }}
+        HELM_REPO_PASSWORD: ${{ inputs.password }}
       run: |
         helm cm-push . charts
