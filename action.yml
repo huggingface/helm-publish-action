@@ -33,7 +33,7 @@ runs:
 
     - name: Tailscale
       uses: tailscale/github-action@v1
-      if: ${{ github.event.inputs.tailscaleKey !== '' }}
+      if: ${{ github.event.inputs.tailscaleKey != '' }}
       with:
         authkey: ${{ github.event.inputs.tailscaleKey }}
 
@@ -44,7 +44,7 @@ runs:
 
     - name: Execute Before Hook
       shell: bash
-      if: ${{ github.event.inputs.beforeHook !== '' }}
+      if: ${{ github.event.inputs.beforeHook != '' }}
       working-directory: ${{ github.event.inputs.workingDirectory }}
       run: ${{ github.event.inputs.beforeHook }}
 
