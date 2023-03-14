@@ -23,7 +23,7 @@ inputs:
     required: true
   buildDependencies:
     description: 'Build dependencies before push'
-    default: 'true'
+    default: 'false'
   updateDependencies:
     description: 'Update dependencies before push'
     default: 'false'
@@ -59,7 +59,7 @@ runs:
 
     - name: Update dependencies
       shell: bash
-      if: ${{ inputs.updateDependencies === 'true' }}
+      if: ${{ inputs.updateDependencies == 'true' }}
       working-directory: ${{ inputs.workingDirectory }}
       env:
         HELM_REPO_USERNAME: ${{ inputs.username }}
@@ -69,7 +69,7 @@ runs:
 
     - name: Build dependencies
       shell: bash
-      if: ${{ inputs.buildDependencies === 'true' }}
+      if: ${{ inputs.buildDependencies == 'true' }}
       working-directory: ${{ inputs.workingDirectory }}
       env:
         HELM_REPO_USERNAME: ${{ inputs.username }}
