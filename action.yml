@@ -21,6 +21,12 @@ inputs:
   password:
     description: 'Password to use on your repository'
     required: true
+  buildDependencies:
+    description: 'Build dependencies before push'
+    default: 'true'
+  updateDependencies:
+    description: 'Update dependencies before push'
+    default: 'false'
   beforeHook:
     description: 'Command to execute before publishing'
     default: ''
@@ -53,12 +59,23 @@ runs:
 
     - name: Update dependencies
       shell: bash
+      if: ${{ inputs.updateDependencies === 'true' }}
       working-directory: ${{ inputs.workingDirectory }}
       env:
         HELM_REPO_USERNAME: ${{ inputs.username }}
         HELM_REPO_PASSWORD: ${{ inputs.password }}
       run: |
         helm dependencies update
+
+    - name: Build dependencies
+      shell: bash
+      if: ${{ inputs.buildDependencies === 'true' }}
+      working-directory: ${{ inputs.workingDirectory }}
+      env:
+        HELM_REPO_USERNAME: ${{ inputs.username }}
+        HELM_REPO_PASSWORD: ${{ inputs.password }}
+      run: |
+        helm dependencies build
 
     - name: Lint
       shell: bash
