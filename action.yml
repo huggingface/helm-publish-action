@@ -45,7 +45,7 @@ runs:
       if: ${{ inputs.tailscaleKey != '' }}
       with:
         authkey: ${{ inputs.tailscaleKey }}
-
+        containerMode: false
     - name: Add repository
       shell: bash
       run: |
