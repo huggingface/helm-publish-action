@@ -41,7 +41,7 @@ runs:
         helm plugin install https://github.com/chartmuseum/helm-push
 
     - name: Tailscale
-      uses: tailscale/github-action@v1
+      uses: huggingface/tailscale-action@main
       if: ${{ inputs.tailscaleKey != '' }}
       with:
         authkey: ${{ inputs.tailscaleKey }}
