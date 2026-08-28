@@ -20,6 +20,27 @@ See [action.yml](action.yml)
     beforeHook: cd subcharts/my-sub-chart && helm dependencies update
 ```
 
+### Publish to an OCI registry
+
+Pass an `oci://` path as `repository` and the chart is pushed with `helm push` instead of Chartmuseum's `cm-push`. The chart lands at `oci://registry/project/<chart-name>:<version>`.
+
+```yaml
+- name: Helm Publish Action
+  uses: huggingface/helm-publish-action@latest
+  with:
+    workingDirectory: charts
+    repository: oci://registry.your-domain.com/charts
+    username: ${{ secrets.REGISTRY_USERNAME }}
+    password: ${{ secrets.REGISTRY_PASSWORD }}
+```
+
+To publish to both while consumers move off Chartmuseum, keep the Chartmuseum URL in `repository` and add `ociRepository`:
+
+```yaml
+    repository: https://registry.your-domain.com/chartrepo/charts
+    ociRepository: oci://registry.your-domain.com/charts
+```
+
 ### Use Tailscale VPN
 
 If your registry is only accessible on a private network, and you use Tailscale, you can pass your tailscale Key to the action.
