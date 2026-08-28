@@ -13,8 +13,12 @@ inputs:
     default: ''
     required: false
   repository:
-    description: 'URL of your repository'
+    description: 'URL of your repository. A Chartmuseum URL (https://...) or an OCI registry path (oci://registry/project)'
     required: true
+  ociRepository:
+    description: 'Optional OCI registry path (oci://registry/project) to publish to as well, while consumers move off Chartmuseum'
+    default: ''
+    required: false
   username:
     description: 'Username to use on your repository'
     required: true
@@ -38,7 +42,9 @@ runs:
       shell: bash
       run: |
         curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-        helm plugin install https://github.com/chartmuseum/helm-push
+        if [[ "${{ inputs.repository }}" != oci://* ]]; then
+          helm plugin install https://github.com/chartmuseum/helm-push
+        fi
 
     - name: Tailscale
       uses: tailscale/github-action@v1
@@ -48,8 +54,21 @@ runs:
 
     - name: Add repository
       shell: bash
+      if: ${{ !startsWith(inputs.repository, 'oci://') }}
       run: |
         helm repo add charts ${{ inputs.repository }}
+
+    # One login covers both OCI targets: they live on the same registry.
+    - name: Registry login
+      shell: bash
+      if: ${{ startsWith(inputs.repository, 'oci://') || inputs.ociRepository != '' }}
+      env:
+        REGISTRY_PASSWORD: ${{ inputs.password }}
+      run: |
+        target="${{ inputs.ociRepository }}"
+        [[ -z "$target" ]] && target="${{ inputs.repository }}"
+        host="${target#oci://}"; host="${host%%/*}"
+        echo "$REGISTRY_PASSWORD" | helm registry login "$host" --username '${{ inputs.username }}' --password-stdin
 
     - name: Execute Before Hook
       shell: bash
@@ -90,4 +109,17 @@ runs:
         HELM_REPO_USERNAME: ${{ inputs.username }}
         HELM_REPO_PASSWORD: ${{ inputs.password }}
       run: |
-        helm cm-push . charts
+        if [[ "${{ inputs.repository }}" == oci://* ]]; then
+          helm package . --destination "$RUNNER_TEMP/chart"
+          helm push "$RUNNER_TEMP"/chart/*.tgz '${{ inputs.repository }}'
+        else
+          helm cm-push . charts
+        fi
+
+    - name: Publish to OCI as well
+      shell: bash
+      if: ${{ inputs.ociRepository != '' }}
+      working-directory: ${{ inputs.workingDirectory }}
+      run: |
+        helm package . --destination "$RUNNER_TEMP/chart-oci"
+        helm push "$RUNNER_TEMP"/chart-oci/*.tgz '${{ inputs.ociRepository }}'
