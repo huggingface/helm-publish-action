@@ -110,8 +110,7 @@ runs:
         HELM_REPO_PASSWORD: ${{ inputs.password }}
       run: |
         if [[ "${{ inputs.repository }}" == oci://* ]]; then
-          helm package . --destination "$RUNNER_TEMP/chart"
-          helm push "$RUNNER_TEMP"/chart/*.tgz '${{ inputs.repository }}'
+          "$GITHUB_ACTION_PATH/oci-push.sh" '${{ inputs.repository }}'
         else
           helm cm-push . charts
         fi
@@ -121,5 +120,4 @@ runs:
       if: ${{ inputs.ociRepository != '' }}
       working-directory: ${{ inputs.workingDirectory }}
       run: |
-        helm package . --destination "$RUNNER_TEMP/chart-oci"
-        helm push "$RUNNER_TEMP"/chart-oci/*.tgz '${{ inputs.ociRepository }}'
+        "$GITHUB_ACTION_PATH/oci-push.sh" '${{ inputs.ociRepository }}'
