@@ -3,6 +3,10 @@ on:
   release:
     types: [published]
 
+# The default GITHUB_TOKEN is read-only here; pushing the tag needs write.
+permissions:
+  contents: write
+
 jobs:
   run:
     name: Add latest tag
