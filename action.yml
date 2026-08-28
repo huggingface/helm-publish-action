@@ -47,7 +47,7 @@ runs:
         fi
 
     - name: Tailscale
-      uses: tailscale/github-action@v1
+      uses: tailscale/github-action@v4
       if: ${{ inputs.tailscaleKey != '' }}
       with:
         authkey: ${{ inputs.tailscaleKey }}
