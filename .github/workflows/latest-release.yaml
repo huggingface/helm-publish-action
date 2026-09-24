@@ -4,11 +4,13 @@ on:
     types: [published]
 
 # The default GITHUB_TOKEN is read-only here; pushing the tag needs write.
-permissions:
-  contents: write
+
+permissions: {}
 
 jobs:
   run:
+    permissions:
+      contents: write
     name: Add latest tag
     runs-on: ubuntu-latest
     steps:
